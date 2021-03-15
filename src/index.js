@@ -1,17 +1,60 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
+import dva from 'dva';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+// step1
+const app = dva();
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+// step 2
+app.model({
+  namespace: 'product',
+  state: {
+    isLoading: false,
+    productList: [
+      {
+        id: 10001,
+        name: 'Product 1',
+        price: 100,
+        qty: 30,
+      },
+      {
+        id: 10002,
+        name: 'Product 2',
+        price: 120,
+        qty: 10,
+      }
+    ],
+  },
+  effects: {
+    *setState({ payload }, { put }) {
+      yield put({
+        type: 'save',
+        payload: payload,
+      });
+    },
+    *getProducts({ payload }, { put, call }) {
+      const response = yield call('Name of the api', payload);
+      if (response.status === 200) {
+        yield put({
+          type: 'save',
+          payload: {
+            productList: response.data,
+          }
+        });
+      }
+    }
+  },
+  reducers: {
+    save(state, { payload }) {
+      return {
+        ...state,
+        ...payload
+      };
+    }
+  }
+});
+
+// step 3 
+app.router(() => <App />);
+
+// step 4
+app.start("root");
