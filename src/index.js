@@ -57,4 +57,4 @@ app.model({
 app.router(() => <App />);
 
 // step 4
-app.start("root");
+app.start("#root");
